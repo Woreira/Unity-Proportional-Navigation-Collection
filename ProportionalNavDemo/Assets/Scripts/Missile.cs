@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//implement acceleration
 public class Missile : MonoBehaviour{
 
     public GameObject explosionPrefab;
