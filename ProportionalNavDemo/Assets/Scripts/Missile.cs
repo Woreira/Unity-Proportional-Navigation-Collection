@@ -64,13 +64,13 @@ public class Missile : MonoBehaviour{
         rb.velocity = transform.forward * speed;
     }
 
-    public static bool GetInterceptDirection(Vector3 origin, Vector3 targetPosition, float bulletSpeed, Vector3 targetVelocity, out Vector3 result){
+    public static bool GetInterceptDirection(Vector3 origin, Vector3 targetPosition, float missileSpeed, Vector3 targetVelocity, out Vector3 result){
 
         var targetingVector = origin - targetPosition;
         var distance = targetingVector.magnitude;
         var alpha = Vector3.Angle(targetingVector, targetVelocity) * Mathf.Deg2Rad;
         var vt = targetVelocity.magnitude;
-        var vRatio = vt/bulletSpeed;
+        var vRatio = vt/missileSpeed;
 
         //solve the triangle, using cossine law
         if(SolveQuadratic(1-(vRatio*vRatio), 2*vRatio*distance*Mathf.Cos(alpha), -distance*distance, out var root1, out var root2) == 0){
@@ -80,7 +80,7 @@ public class Missile : MonoBehaviour{
         }
 
         var expectedPositionSize = Mathf.Max(root1, root2);
-        var time = expectedPositionSize/bulletSpeed;
+        var time = expectedPositionSize/missileSpeed;
         var estimatedPos = targetPosition + targetVelocity*time;
         result = (estimatedPos - origin).normalized;
 
