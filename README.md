@@ -1,5 +1,5 @@
-# Proportional-Navigation-Missile-in-Unity
-Implementation of ProNav guidance in Unity<br>
+# Unity Proportional Navigation
+Implementation of ProNav (proportional navigation) guidance in Unity<br>
 ![](https://github.com/Woreira/Proportional-Navigation-Missile-in-Unity/blob/main/PreviewGifs/preview1.gif)  
 
 A proportional navigation missile calculates the optimal intercept position,<br>
