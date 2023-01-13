@@ -1,70 +1,91 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+public enum Guidance {LineOfSight, Simplified, Quadratic};
 
 public class Missile : MonoBehaviour{
 
     public GameObject explosionPrefab;
-    public float speed, turnRate;
+    public Guidance guidanceChoosen;
 
-    public Transform targetTransform;
-    public Rigidbody targetRb;
+    public Transform target;
+    public float speed;
+    public float turnRate;
+    public float pValue;
+
     private Rigidbody rb;
+    private Rigidbody targetRb;
 
-    private float lifetime = 0f;
-    
+    private System.Action GuidanceLogic;
 
-    private void Start(){
+    void Start(){
         rb = GetComponent<Rigidbody>();
-    }
 
-    private void OnDrawGizmos(){
-       
-    }
-
-    private void Update(){
-        lifetime += Time.deltaTime;
-        CheckLock();
-        Fly();
-        Debug.DrawRay(transform.position, transform.forward * 5f, Color.yellow);
-      
-    }
-
-    private void CheckLock(){
-
-        //allow the missile to adjust itself to target on spawn
-        if(lifetime < 2f || targetTransform == null){
-            return;
+        //doing like this to spare the switch call on the fixed update
+        switch(guidanceChoosen){
+            case Guidance.LineOfSight:
+            GuidanceLogic = () => LOSPN();
+            break;
+            case Guidance.Simplified:
+            GuidanceLogic = () => SimplifiedPN();
+            break;
+            case Guidance.Quadratic:
+            GuidanceLogic = () => QuadraticPN();
+            break;
         }
-
-        //check if the target is insede the view cone (in this case, a 30 degree cone)
-        if(Vector3.Dot(transform.forward, (targetTransform.position - transform.position).normalized) >= Mathf.Sin(30f * Mathf.Rad2Deg)){
-            return;
-        }
-
-        Debug.Log("Missile missed the target!");
-        targetTransform = null;
     }
 
-    private void Fly(){
+    void FixedUpdate(){
+       GuidanceLogic();
+    }
 
+    void LOSPN(){
+        
+        Vector3 lineOfSight = (target.position + (targetRb.velocity * Time.fixedDeltaTime)) - transform.position;
+
+        float angle = Vector3.Angle(rb.velocity, lineOfSight);
+
+        Vector3 adjustment = pValue * angle * lineOfSight.normalized;
+
+        rb.velocity = rb.velocity.normalized * speed;
+        var target_rotation = Quaternion.LookRotation(adjustment);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, target_rotation, turnRate); 
+
+        rb.velocity = transform.forward * speed;
+    }
+
+    void SimplifiedPN(){
+        Vector3 distanceVector = target.position - transform.position;
+        Vector3 targetRelativeVelocity = targetRb.velocity - rb.velocity;
+
+        float navigationTime = distanceVector.magnitude / speed;
+        Vector3 targetRelativeInterceptPosition = distanceVector + (targetRelativeVelocity * navigationTime);
+
+        Vector3 desiredHeading = targetRelativeInterceptPosition.normalized;
+
+        targetRelativeInterceptPosition *= pValue;   //multiply the relative intercept pos so the missile will lead a bit more
+
+        var target_rotation = Quaternion.LookRotation((target.position + targetRelativeInterceptPosition) - transform.position);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, target_rotation, turnRate); 
+
+        rb.velocity = transform.forward * speed;
+    }
+
+    void QuadraticPN(){
         Vector3 direction;
-        Quaternion target_rotation;
+        Quaternion target_rotation = Quaternion.identity;
 
-        if(targetTransform == null) return;
 
         if(GetInterceptDirection(transform.position, targetRb.gameObject.transform.position, speed, targetRb.velocity, out direction)){
             target_rotation = Quaternion.LookRotation(direction);
         }else{
-            //if the proNav intercept fails, fallback to simple pursuit
-            target_rotation = Quaternion.LookRotation(targetRb.gameObject.transform.position - transform.position);
+            //well, I guess we cant intercept then
         }
 
         transform.rotation = Quaternion.RotateTowards(transform.rotation, target_rotation, turnRate*Time.deltaTime);      
         rb.velocity = transform.forward * speed;
     }
 
-    public static bool GetInterceptDirection(Vector3 origin, Vector3 targetPosition, float missileSpeed, Vector3 targetVelocity, out Vector3 result){
+    static bool GetInterceptDirection(Vector3 origin, Vector3 targetPosition, float missileSpeed, Vector3 targetVelocity, out Vector3 result){
 
         var targetingVector = origin - targetPosition;
         var distance = targetingVector.magnitude;
@@ -74,26 +95,19 @@ public class Missile : MonoBehaviour{
 
         //solve the triangle, using cossine law
         if(SolveQuadratic(1-(vRatio*vRatio), 2*vRatio*distance*Mathf.Cos(alpha), -distance*distance, out var root1, out var root2) == 0){
-            //no possible intercept
             result = Vector3.zero;
-            return false;
+            return false;   //no intercept solution possible!
         }
 
-        var expectedPositionSize = Mathf.Max(root1, root2);
-        var time = expectedPositionSize/missileSpeed;
+        var interceptVectorMagnitude = Mathf.Max(root1, root2);
+        var time = interceptVectorMagnitude/missileSpeed;
         var estimatedPos = targetPosition + targetVelocity*time;
         result = (estimatedPos - origin).normalized;
-
-        #if UNITY_EDITOR
-            Debug.DrawRay(origin, -targetingVector, Color.red);
-            Debug.DrawRay(origin, estimatedPos-origin, Color.blue);
-            Debug.DrawRay(targetPosition, targetVelocity*time, Color.white);
-        #endif
 
         return true;
     }
 
-    public static int SolveQuadratic(float a, float b, float c, out float root1, out float root2){
+    static int SolveQuadratic(float a, float b, float c, out float root1, out float root2){
 
         var discriminant = b*b - 4*a*c;
 
@@ -110,16 +124,15 @@ public class Missile : MonoBehaviour{
     }
 
     public void SetTarget(Transform targetT, Rigidbody targetRb){
-        targetTransform = targetT;
+        target = targetT;
         this.targetRb = targetRb;
     }
 
-    private void OnTriggerEnter(Collider c){
+    void OnTriggerEnter(Collider c){
         if(c.gameObject.CompareTag("Dummy")){
             Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
     }
 
-   
 }
