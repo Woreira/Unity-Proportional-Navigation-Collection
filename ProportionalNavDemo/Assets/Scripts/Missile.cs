@@ -40,11 +40,12 @@ public class Missile : MonoBehaviour{
 
     void LOSPN(){
         
-        Vector3 lineOfSight = (target.position + (targetRb.velocity * Time.fixedDeltaTime)) - transform.position;
+        float navigationTime = (target.position - transform.position).magnitude / speed;
+        Vector3 los = (target.position + targetRb.velocity * navigationTime) - transform.position;
 
-        float angle = Vector3.Angle(rb.velocity, lineOfSight);
-
-        Vector3 adjustment = pValue * angle * lineOfSight.normalized;
+        float angle = Vector3.Angle(rb.velocity, los);
+        print(angle);
+        Vector3 adjustment = pValue * angle * los.normalized;
 
         rb.velocity = rb.velocity.normalized * speed;
         var target_rotation = Quaternion.LookRotation(adjustment);
@@ -54,11 +55,11 @@ public class Missile : MonoBehaviour{
     }
 
     void SimplifiedPN(){
-        Vector3 distanceVector = target.position - transform.position;
+        Vector3 los = target.position - transform.position;
         Vector3 targetRelativeVelocity = targetRb.velocity - rb.velocity;
 
-        float navigationTime = distanceVector.magnitude / speed;
-        Vector3 targetRelativeInterceptPosition = distanceVector + (targetRelativeVelocity * navigationTime);
+        float navigationTime = los.magnitude / speed;
+        Vector3 targetRelativeInterceptPosition = los + (targetRb.velocity * navigationTime);
 
         Vector3 desiredHeading = targetRelativeInterceptPosition.normalized;
 

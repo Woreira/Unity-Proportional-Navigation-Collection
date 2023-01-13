@@ -13,9 +13,7 @@ This project currently contains 3 implementations:<br>
 
 ![](https://github.com/Woreira/Proportional-Navigation-Missile-in-Unity/blob/main/PreviewGifs/preview3.gif)
 
-If you want to cut straight to the chase, look at [`Missile.cs`](https://github.com/Woreira/Proportional-Navigation-Missile-in-Unity/blob/main/ProportionalNavDemo/Assets/Scripts/Missile.cs)<br>
-it *should* have everything you need to implement ProNav in your project
-
+> If you want to cut straight to the chase, look at [`Missile.cs`](https://github.com/Woreira/Proportional-Navigation-Missile-in-Unity/blob/main/ProportionalNavDemo/Assets/Scripts/Missile.cs) it *should* have everything you need to implement ProNav in your project.
 
 ## Glossary
 
@@ -25,6 +23,7 @@ it *should* have everything you need to implement ProNav in your project
 
 `SimplifiedPN()`: This method stands for Simplified Proportional Navigation. It uses a simplified version of the Proportional Navigation guidance system. It calculates the navigation time, target relative intercept position and the desired heading, and then uses the pValue variable to adjust the missile's velocity in the direction of the target relative intercept position. It also uses the turnRate variable to determine how quickly the missile should rotate towards the target.
 
-`QuadraticPN()`: This method stands for Quadratic Proportional Navigation. It uses a more complex version of the Proportional Navigation guidance system. It uses the `GetInterceptDirection(...)` method to solve a quadratic equation, in order to determine the direction of the missile to intercept the target. It then uses the turnRate variable to determine how quickly the missile should rotate towards the target.
+`QuadraticPN()`: This method stands for Quadratic Proportional Navigation. It uses a more complex version of the Proportional Navigation guidance system. It uses the `GetInterceptDirection(...)` method to solve a quadratic equation, in order to determine the direction of the missile to intercept the target.
+> Quadratic is by far the most accurate guidance system, and requires almost no adjustment to variables
 
 `GetInterceptDirection(...)`: This method is a static method that takes in an origin position, target position, missile speed, target velocity, and a Vector3 result. It calculates the targeting vector, distance, alpha, and vt, and then uses the `SolveQuadratic(...)` method to solve a quadratic equation to get the result. It returns false if there is no intercept solution possible.
