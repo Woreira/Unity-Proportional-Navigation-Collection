@@ -33,4 +33,4 @@ You can choose what guidance the missile will use via the dropdown on the inspec
 
 `GetInterceptDirection(...)`: Uses `SolveQuadratic(...)` to solve the intercept traingle and outs the direction when possible
 
-> Note: These methods can also be used to solve for interpt bullets (i.e. firing a bullet at a moving target), hence I preferred to detach then
+> Note: These methods can also be used to solve for intercept bullets (i.e. firing a bullet at a moving target), hence I preferred to detach then
