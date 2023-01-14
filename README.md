@@ -31,6 +31,6 @@ You can choose what guidance the missile will use via the dropdown on the inspec
 
 > Quadratic is by far the most accurate guidance system, makes the missile travel in a complete straight line to the intercept point, given that there is a possible intercept point
 
-`GetInterceptDirection(...)`: Uses `SolveQuadratic(...)` to solve the interpet traingle and outs the direction when possible
+`GetInterceptDirection(...)`: Uses `SolveQuadratic(...)` to solve the intercept traingle and outs the direction when possible
 
 > Note: These methods can also be used to solve for interpt bullets (i.e. firing a bullet at a moving target), hence I preferred to detach then
