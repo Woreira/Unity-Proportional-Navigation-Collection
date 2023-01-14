@@ -44,7 +44,6 @@ public class Missile : MonoBehaviour{
         Vector3 los = (target.position + targetRb.velocity * navigationTime) - transform.position;
 
         float angle = Vector3.Angle(rb.velocity, los);
-        print(angle);
         Vector3 adjustment = pValue * angle * los.normalized;
 
         rb.velocity = rb.velocity.normalized * speed;
@@ -56,7 +55,6 @@ public class Missile : MonoBehaviour{
 
     void SimplifiedPN(){
         Vector3 los = target.position - transform.position;
-        Vector3 targetRelativeVelocity = targetRb.velocity - rb.velocity;
 
         float navigationTime = los.magnitude / speed;
         Vector3 targetRelativeInterceptPosition = los + (targetRb.velocity * navigationTime);
@@ -88,9 +86,9 @@ public class Missile : MonoBehaviour{
 
     static bool GetInterceptDirection(Vector3 origin, Vector3 targetPosition, float missileSpeed, Vector3 targetVelocity, out Vector3 result){
 
-        var targetingVector = origin - targetPosition;
-        var distance = targetingVector.magnitude;
-        var alpha = Vector3.Angle(targetingVector, targetVelocity) * Mathf.Deg2Rad;
+        var los = origin - targetPosition;
+        var distance = los.magnitude;
+        var alpha = Vector3.Angle(los, targetVelocity) * Mathf.Deg2Rad;
         var vt = targetVelocity.magnitude;
         var vRatio = vt/missileSpeed;
 

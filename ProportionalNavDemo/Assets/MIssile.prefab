@@ -48,11 +48,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosionPrefab: {fileID: 52841006401321372, guid: dc450f6f11c6ca14f8651ad594d4bfc0, type: 3}
-  guidanceChoosen: 0
+  guidanceChoosen: 2
   target: {fileID: 0}
   speed: 200
   turnRate: 900
-  pValue: 1
+  pValue: 2
 --- !u!96 &2491120994531525854
 TrailRenderer:
   serializedVersion: 2
